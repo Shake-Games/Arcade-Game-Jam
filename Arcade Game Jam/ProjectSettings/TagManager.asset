@@ -5,15 +5,18 @@ TagManager:
   serializedVersion: 2
   tags:
   - Wall
+  - Pacman
+  - Ghost
+  - Pellet
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - wallLayer
+  - Walls
   - Water
   - UI
   - Ghost
-  - 
+  - PACMan
   - 
   - 
   - 

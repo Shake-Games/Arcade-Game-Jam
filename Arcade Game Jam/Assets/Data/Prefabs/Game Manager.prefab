@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &8799351605070548744
+--- !u!1 &6264769986240481066
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,46 +8,47 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 7529821258274380035}
-  - component: {fileID: 4555187910805211556}
+  - component: {fileID: 1817756007595750324}
+  - component: {fileID: 1818263169824895878}
   m_Layer: 0
-  m_Name: Ghost Manager
+  m_Name: Game Manager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &7529821258274380035
+--- !u!4 &1817756007595750324
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8799351605070548744}
+  m_GameObject: {fileID: 6264769986240481066}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -0.68983185, y: 0.032262012, z: -0.0069591664}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4555187910805211556
+--- !u!114 &1818263169824895878
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8799351605070548744}
+  m_GameObject: {fileID: 6264769986240481066}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d43cd9cc7c410a442953c7e10e84dd79, type: 3}
+  m_Script: {fileID: 11500000, guid: 783da99ba0ead3044a45085e8acb652c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ghosts:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  cameraFollow: {fileID: 0}
+  pelletPrefab: {fileID: 0}
+  gridWidth: 20
+  gridHeight: 15
+  spacing: 1
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 8
+  scoreText: {fileID: 0}

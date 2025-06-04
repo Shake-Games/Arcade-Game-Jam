@@ -46,6 +46,7 @@ namespace SG
             {
                 bool isActive = (i == index);
                 ghosts[i].GetComponent<PlayerInputManager>().enabled = isActive;
+                ghosts[i].GetComponent<GhostAI>().enabled = !isActive;
             }
 
             cameraFollow.target = ghosts[index].transform;

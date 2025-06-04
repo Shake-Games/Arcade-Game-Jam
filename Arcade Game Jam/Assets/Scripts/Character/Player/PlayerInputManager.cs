@@ -15,20 +15,16 @@ namespace SG
         [SerializeField] private float animationSpeed = 0.2f;
 
         [Header("Up Sprites")]
-        [SerializeField] private Sprite up1;
-        [SerializeField] private Sprite up2;
+        [SerializeField] private Sprite[] upSprites;
 
         [Header("Down Sprites")]
-        [SerializeField] private Sprite down1;
-        [SerializeField] private Sprite down2;
+        [SerializeField] private Sprite[] downSprites;
 
         [Header("Left Sprites")]
-        [SerializeField] private Sprite left1;
-        [SerializeField] private Sprite left2;
+        [SerializeField] private Sprite[] leftSprites;
 
         [Header("Right Sprites")]
-        [SerializeField] private Sprite right1;
-        [SerializeField] private Sprite right2;
+        [SerializeField] private Sprite[] rightSprites;
 
         private Vector2 moveDirection = Vector2.zero;
         private Vector2 desiredDirection = Vector2.zero;
@@ -37,7 +33,7 @@ namespace SG
         private Rigidbody2D rb;
 
         private float animationTimer = 0f;
-        private bool animationToggle = false;
+        private int animationFrame = 0;
 
         private void Awake()
         {
@@ -98,23 +94,23 @@ namespace SG
 
             if (animationTimer >= animationSpeed)
             {
-                animationToggle = !animationToggle;
                 animationTimer = 0f;
+                animationFrame = (animationFrame + 1) % 2;
 
                 if (moveDirection == Vector2.up)
-                    spriteRenderer.sprite = animationToggle ? up1 : up2;
+                    spriteRenderer.sprite = upSprites[animationFrame];
                 else if (moveDirection == Vector2.down)
-                    spriteRenderer.sprite = animationToggle ? down1 : down2;
+                    spriteRenderer.sprite = downSprites[animationFrame];
                 else if (moveDirection == Vector2.left)
-                    spriteRenderer.sprite = animationToggle ? left1 : left2;
+                    spriteRenderer.sprite = leftSprites[animationFrame];
                 else if (moveDirection == Vector2.right)
-                    spriteRenderer.sprite = animationToggle ? right1 : right2;
+                    spriteRenderer.sprite = rightSprites[animationFrame];
             }
         }
 
         private void OnCollisionEnter2D(Collision2D collision)
         {
-            if (collision.gameObject.CompareTag("Wall"))
+            if (collision.gameObject.layer == LayerMask.NameToLayer("Walls"))
             {
                 moveDirection = Vector2.zero;
             }
