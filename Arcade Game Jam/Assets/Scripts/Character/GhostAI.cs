@@ -25,8 +25,24 @@ namespace SG
         private float directionChangeTimer = 0f;
         private bool animationPaused = false;
 
+        private Vector3 targetPosition;
+        private bool isMoving = false;
+
+        private float gridSpacing = 1f;
+
         private void Start()
         {
+            var pelletPool = FindObjectOfType<PelletPool>();
+            if (pelletPool != null)
+                gridSpacing = pelletPool.spacing;
+
+            transform.position = new Vector3(
+                Mathf.Round(transform.position.x),
+                Mathf.Round(transform.position.y),
+                transform.position.z
+            );
+
+            targetPosition = transform.position;
             PickNewDirection();
             ResetDirectionChangeTimer();
         }
@@ -35,17 +51,19 @@ namespace SG
         {
             directionChangeTimer -= Time.deltaTime;
 
-            if (IsWallAhead(moveDirection))
+            if (!isMoving)
             {
-                PickNewDirection();
-                ResetDirectionChangeTimer();
-                animationPaused = true;
-            }
-            else
-            {
-                animationPaused = false;
-                transform.Translate(moveDirection * moveSpeed * Time.deltaTime);
-                Animate();
+                if (IsWallAhead(moveDirection))
+                {
+                    PickNewDirection();
+                    ResetDirectionChangeTimer();
+                    animationPaused = true;
+                }
+                else
+                {
+                    animationPaused = false;
+                    StartCoroutine(MoveToNextGridPosition());
+                }
             }
 
             if (directionChangeTimer <= 0f)
@@ -53,6 +71,28 @@ namespace SG
                 PickNewDirection();
                 ResetDirectionChangeTimer();
             }
+
+            Animate();
+        }
+
+        private IEnumerator MoveToNextGridPosition()
+        {
+            isMoving = true;
+            Vector3 startPos = transform.position;
+            targetPosition = startPos + (Vector3)(moveDirection * gridSpacing);
+
+            float elapsed = 0f;
+            float duration = gridSpacing / moveSpeed;
+
+            while (elapsed < duration)
+            {
+                transform.position = Vector3.Lerp(startPos, targetPosition, elapsed / duration);
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+
+            transform.position = targetPosition;
+            isMoving = false;
         }
 
         private bool IsWallAhead(Vector2 dir)
