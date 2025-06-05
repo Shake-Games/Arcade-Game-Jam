@@ -68,8 +68,6 @@ namespace SG
                     pelletsSpawned++;
                 }
             }
-
-            Debug.Log($"Total pellets spawned: {pelletsSpawned}");
         }
 
         public void ReturnPelletToPool(GameObject pellet)
