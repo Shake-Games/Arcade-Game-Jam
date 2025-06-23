@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 namespace SG
 {
@@ -7,7 +8,6 @@ namespace SG
     {
         [Header("Movement Settings")]
         [SerializeField] private float moveSpeed = 3f;
-        [SerializeField] private float checkDistance = 0.6f;
         [SerializeField] private float directionChangeCooldown = 1f;
 
         [Header("Animation Settings")]
@@ -17,6 +17,9 @@ namespace SG
         [SerializeField] private Sprite[] leftSprites;
         [SerializeField] private Sprite[] rightSprites;
         [SerializeField] private float animationSpeed = 0.2f;
+
+        [Header("Grid Settings")]
+        [SerializeField] private Tilemap wallTilemap;
 
         private Vector2 moveDirection;
         private float animTimer;
@@ -28,17 +31,13 @@ namespace SG
         private Vector3 targetPosition;
         private bool isMoving = false;
 
-        private float gridSpacing = 1f;
+        private float gridSpacing = 0.64f;
 
         private void Start()
         {
-            var pelletPool = FindObjectOfType<PelletPool>();
-            if (pelletPool != null)
-                gridSpacing = pelletPool.spacing;
-
             transform.position = new Vector3(
-                Mathf.Round(transform.position.x),
-                Mathf.Round(transform.position.y),
+                Mathf.Round(transform.position.x / gridSpacing) * gridSpacing,
+                Mathf.Round(transform.position.y / gridSpacing) * gridSpacing,
                 transform.position.z
             );
 
@@ -81,6 +80,8 @@ namespace SG
             Vector3 startPos = transform.position;
             targetPosition = startPos + (Vector3)(moveDirection * gridSpacing);
 
+            Debug.Log($"Moving from {startPos} to {targetPosition}");
+
             float elapsed = 0f;
             float duration = gridSpacing / moveSpeed;
 
@@ -93,12 +94,19 @@ namespace SG
 
             transform.position = targetPosition;
             isMoving = false;
+
+            Vector3 pos = transform.position;
+            bool onGrid = Mathf.Approximately(pos.x % gridSpacing, 0f) && Mathf.Approximately(pos.y % gridSpacing, 0f);
+            Debug.Log($"GHOST POS: {pos}, On Grid: {onGrid}");
         }
 
         private bool IsWallAhead(Vector2 dir)
         {
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, dir, checkDistance, LayerMask.GetMask("Walls"));
-            return hit.collider != null;
+            if (wallTilemap == null) return false;
+
+            Vector3 nextPosition = transform.position + (Vector3)(dir * gridSpacing);
+            Vector3Int cellPosition = wallTilemap.WorldToCell(nextPosition);
+            return wallTilemap.HasTile(cellPosition);
         }
 
         private void PickNewDirection()
@@ -112,6 +120,7 @@ namespace SG
                 if (!IsWallAhead(newDir) && newDir != -moveDirection)
                 {
                     moveDirection = newDir;
+                    Debug.Log($"Picked new direction: {moveDirection}");
                     return;
                 }
             }
@@ -126,8 +135,7 @@ namespace SG
 
         private void Animate()
         {
-            if (animationPaused) return;
-            if (spriteRenderer == null) return;
+            if (animationPaused || spriteRenderer == null) return;
 
             animTimer += Time.deltaTime;
             if (animTimer >= animationSpeed)

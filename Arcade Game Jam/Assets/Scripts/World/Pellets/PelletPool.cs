@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 namespace SG
 {
@@ -12,10 +13,11 @@ namespace SG
         [Header("Grid Settings")]
         public int gridWidth = 14;
         public int gridHeight = 10;
-        public float spacing = 1f; // keep this 1f to keep pellets 1 unit apart
+        public float spacing = 0.64f;
 
         [Header("Hierarchy Management")]
         public Transform pelletParent;
+        public Tilemap wallTilemap;
 
         private Queue<GameObject> pelletPool = new Queue<GameObject>();
 
@@ -48,6 +50,14 @@ namespace SG
             {
                 for (int y = 0; y < gridHeight; y++)
                 {
+                    float posX = Mathf.Round((x - offsetX) * spacing / spacing) * spacing;
+                    float posY = Mathf.Round((y - offsetY) * spacing / spacing) * spacing;
+                    Vector3 worldPos = new Vector3(posX, posY, 0);
+                    Vector3Int cellPos = wallTilemap.WorldToCell(worldPos);
+
+                    if (wallTilemap != null && wallTilemap.HasTile(cellPos))
+                        continue; // Skip if wall tile is here
+
                     if (pelletPool.Count == 0)
                     {
                         Debug.LogWarning("Pellet pool ran out of pellets!");
@@ -55,11 +65,7 @@ namespace SG
                     }
 
                     GameObject pellet = pelletPool.Dequeue();
-
-                    int posX = x - offsetX;
-                    int posY = y - offsetY;
-
-                    pellet.transform.position = new Vector3(posX * spacing, posY * spacing, 0);
+                    pellet.transform.position = worldPos;
                     pellet.SetActive(true);
 
                     if (pelletParent != null)
@@ -68,6 +74,8 @@ namespace SG
                     pelletsSpawned++;
                 }
             }
+
+            Debug.Log($"Total pellets spawned: {pelletsSpawned}");
         }
 
         public void ReturnPelletToPool(GameObject pellet)

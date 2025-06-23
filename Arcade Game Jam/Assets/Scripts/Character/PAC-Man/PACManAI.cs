@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 namespace SG
 {
@@ -7,13 +8,15 @@ namespace SG
     {
         [Header("Movement Settings")]
         [SerializeField] private float moveSpeed = 3f;
-        [SerializeField] private float checkDistance = 0.6f;
         [SerializeField] private float directionChangeCooldown = 1f;
 
         [Header("Animation Settings")]
         [SerializeField] private SpriteRenderer spriteRenderer;
         [SerializeField] private Sprite[] animationSprites;
         [SerializeField] private float animationSpeed = 0.2f;
+
+        [Header("Grid Settings")]
+        [SerializeField] private Tilemap wallTilemap;
 
         private Vector2 moveDirection;
         private float animTimer;
@@ -25,18 +28,13 @@ namespace SG
         private Vector3 targetPosition;
         private bool isMoving = false;
 
-        private float gridSpacing = 1f;
+        private float gridSpacing = 0.64f;
 
         private void Start()
         {
-            var pelletPool = FindObjectOfType<PelletPool>();
-            if (pelletPool != null)
-                gridSpacing = pelletPool.spacing;
-
-            // Snap Pacman position to grid on start:
             transform.position = new Vector3(
-                Mathf.Round(transform.position.x),
-                Mathf.Round(transform.position.y),
+                Mathf.Round(transform.position.x / gridSpacing) * gridSpacing,
+                Mathf.Round(transform.position.y / gridSpacing) * gridSpacing,
                 transform.position.z
             );
 
@@ -92,12 +90,17 @@ namespace SG
 
             transform.position = targetPosition;
             isMoving = false;
+
+            Debug.Log($"PAC-MAN POS: {transform.position}");
         }
 
         private bool IsWallAhead(Vector2 dir)
         {
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, dir, checkDistance, LayerMask.GetMask("Walls"));
-            return hit.collider != null;
+            if (wallTilemap == null) return false;
+
+            Vector3 nextPosition = transform.position + (Vector3)(dir * gridSpacing);
+            Vector3Int cellPosition = wallTilemap.WorldToCell(nextPosition);
+            return wallTilemap.HasTile(cellPosition);
         }
 
         private void PickNewDirection()
@@ -125,7 +128,7 @@ namespace SG
 
         private void Animate()
         {
-            if (animationPaused) return;
+            if (animationPaused || spriteRenderer == null) return;
             if (animationSprites == null || animationSprites.Length == 0) return;
 
             animTimer += Time.deltaTime;
